@@ -1,0 +1,97 @@
+---
+- name: swap | swapfile | Check swap_file exists
+  stat:
+    path:  "{{ swap_file_path }}"
+  register: swap_file_check
+
+- name: swap | swapfile | Check swap_file size changed
+  set_fact:
+    swap_file_size_changed: "{{ (swap_file_check.stat.exists and (swap_file_size | human_to_bytes != swap_file_check.stat.size)) or (not swap_file_check.stat.exists and swap_file_size | human_to_bytes > 4096) }}"
+    cacheable: no
+
+- name: swap | swapfile | Get files and devices are used as swap
+  command: |
+    swapon --show=NAME,TYPE --noheadings
+  changed_when: no
+  register: swap_file_list
+
+- name: swap | swapfile | Check swap_file is in use
+  set_fact:
+    swap_file_inuse: "{{ swap_file_list.rc == 0 and swap_file_path in swap_file_list.stdout }}"
+    cacheable: no
+
+- name: swap | swapfile | Disable swap_file
+  command: |
+    swapoff {{ swap_file_path }}
+  register: swap_file_disable
+  when:
+    - swap_file_size_changed | bool
+    - swap_file_inuse | bool
+
+- name: swap | swapfile | Delete swap_file when size changed
+  file:
+    path: "{{ swap_file_path }}"
+    state: absent
+  register: swap_file_delete
+  when:
+    - swap_file_size_changed | bool
+    - not swap_file_inuse | bool or swap_file_disable.rc == 0
+
+- name: swap | swapfile | Create swap_file
+  command: |
+    fallocate --length {{ swap_file_size }} {{ swap_file_path }}
+  register: swap_file_create
+  when:
+    - swap_file_size_changed | bool
+    - swap_file_size | human_to_bytes > 4096
+
+- name: swap | swapfile | Set swap_file permissions
+  file:
+    path: "{{ swap_file_path }}"
+    owner: root
+    group: root
+    mode: 0600
+  when:
+    - swap_file_create.changed | bool
+    - swap_file_create.rc == 0
+
+- name: swap | swapfile | Format swap_file as swap
+  command: |
+    mkswap --force {{ swap_file_path }}
+  when:
+    - swap_file_create.changed | bool
+    - swap_file_create.rc == 0
+  register: swap_file_mkswap
+  notify:
+    - Turn on swap from fstab
+
+- name: swap | swapfile | Add swap_file to fstab
+  mount:
+    src: "{{ swap_file_path }}"
+    path: none
+    fstype: swap
+    opts: sw
+    dump: '0'
+    passno: '0'
+    fstab: /etc/fstab
+    state: present
+  when:
+    - swap_file_mkswap.changed | bool
+    - swap_file_mkswap.rc == 0
+  notify:
+    - Turn on swap from fstab
+
+- name: swap | swapfile | Del swap_file from fstab if zero size
+  mount:
+    src: "{{ swap_file_path }}"
+    path: none
+    fstype: swap
+    opts: sw
+    dump: '0'
+    passno: '0'
+    fstab: /etc/fstab
+    state: absent
+  when:
+    - swap_file_delete.changed | bool
+    - not swap_file_create.changed | bool or swap_file_create.rc != 0
+    - not swap_file_mkswap.changed | bool or swap_file_mkswap.rc != 0

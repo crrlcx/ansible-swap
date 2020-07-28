@@ -1,0 +1,23 @@
+---
+# main tasks
+- name: swap | Check and gathering facts
+  setup: #aka gather_facts
+  tags:
+    - always
+
+- name: swap | Enable swapfile with tags
+  import_tasks: swapfile.yml
+  when:
+    - swap_file_enabled | bool
+  tags:
+    - always
+
+- name: swap | Enable systemd-swap with tags
+  import_tasks: systemd-swap.yml
+  when:
+    - swap_systemd_enabled | bool
+    - ansible_service_mgr == 'systemd'
+  tags:
+    - always
+
+- meta: flush_handlers

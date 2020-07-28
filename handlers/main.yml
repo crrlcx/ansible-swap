@@ -1,0 +1,13 @@
+---
+# handlers file for ansible-swap
+
+- name: Turn on swap from fstab
+  command: swapon --all
+
+- name: restart systemd-swap
+  systemd:
+    service: systemd-swap.service
+    state: restarted
+    enabled: yes
+    masked: no
+    daemon_reload: yes

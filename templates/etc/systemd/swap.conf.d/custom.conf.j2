@@ -1,0 +1,31 @@
+{{ ansible_managed | comment }}
+# Custom Systemd-Swap config
+
+# Zswap
+## Kernel >= 3.11
+zswap_enabled={% if swap_systemd_zswap_enabled | bool %}1{% else %}0{% endif %}
+
+zswap_max_pool_percent={{ swap_systemd_zswap_max_pool_percent | d(25) }}
+
+# ZRam
+## Kernel >= 3.15
+zram_enabled={% if swap_systemd_zram_enabled | bool %}1{% else %}0{% endif %}
+
+zram_size={{ swap_systemd_zram_size | d('$(( ${RAM_SIZE} / 4 ))') }}
+zram_count={{ swap_systemd_zram_count | d('${NCPU}') }}
+zram_streams={{ swap_systemd_zram_streams | d('${NCPU}') }}
+
+# Swap File Chunked
+## Allocate swap files dynamically
+swapfc_enabled={% if swap_systemd_swapfc_enabled | bool %}1{% else %}0{% endif %}
+
+swapfc_force_use_loop={% if swap_systemd_swapfc_force_use_loop | bool %}1{% else %}0{% endif %}
+
+swapfc_frequency=1s
+swapfc_chunk_size={{ swap_systemd_swapfc_chunk_size | d('512M') }}
+swapfc_max_count={{ swap_systemd_swapfc_max_count | d(8) }}
+swapfc_free_swap_perc={{ swap_systemd_swapfc_free_swap_perc | d(15) }}
+
+# Swap devices
+# Find and auto swapon all available swap devices
+swapd_auto_swapon={% if swap_systemd_swapd_auto_swapon | bool %}1{% else %}0{% endif %}
