@@ -7,18 +7,21 @@
 - name: swap | swapfile | Check swap_file size changed
   set_fact:
     swap_file_size_changed: "{{ (swap_file_check.stat.exists and (swap_file_size | human_to_bytes != swap_file_check.stat.size)) or (not swap_file_check.stat.exists and swap_file_size | human_to_bytes > 4096) }}"
-    cacheable: no
+    cacheable: false
+  check_mode: false
 
 - name: swap | swapfile | Get files and devices are used as swap
   command: |
     swapon --show=NAME,TYPE --noheadings
-  changed_when: no
+  changed_when: false
+  check_mode: false
   register: swap_file_list
 
 - name: swap | swapfile | Check swap_file is in use
   set_fact:
     swap_file_inuse: "{{ swap_file_list.rc == 0 and swap_file_path in swap_file_list.stdout }}"
     cacheable: no
+  check_mode: false
 
 - name: swap | swapfile | Disable swap_file
   command: |
