@@ -1,4 +1,18 @@
 ---
+- name: swap | systemd-swap| install or update requirements
+  apt:
+    name: "{{ swap_systemd_requirements }}"
+    state: latest
+    install_recommends: true
+    force: true
+    force_apt_get: true
+    dpkg_options: "{{ dpkg_force_overwrite_configs | ternary('force-confdef,force-confnew', 'force-confdef,force-confold') }}"
+    update_cache: true
+    cache_valid_time: 3600
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    RUNLEVEL: 1
+
 # TODO: drop when apt repo will
 - name: swap | systemd-swap | Copy deb package to /tmp
   copy:
@@ -18,7 +32,7 @@
     install_recommends: yes
     force: yes
     force_apt_get: yes
-    dpkg_options: "{{ dpkg_force_overwrite_configs | ternary('force-confdef,force-confnew', 'force-confdef,force-confold') }}"
+    dpkg_options: 'force-confdef,force-confnew'
     # update_cache: yes
     # cache_valid_time: 3600
   environment:
