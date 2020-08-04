@@ -22,7 +22,6 @@
     owner: root
     group: staff
     mode: 0644
-  register: swap_systemd_package_deb
 
 - name: swap | systemd-swap | Install deb package
   apt:
@@ -38,8 +37,6 @@
   environment:
     DEBIAN_FRONTEND: noninteractive
     RUNLEVEL: 1
-  when:
-    - swap_systemd_package_deb.changed
   notify:
     - restart systemd-swap
 
@@ -53,13 +50,11 @@
 
 - name: swap | systemd-swap | Set custom configurations
   template:
-    src: "{{ item }}"
-    dest: "/etc/systemd/swap.conf.d/{{ item | basename | regex_replace('.j2','') }}"
+    src: 'etc/systemd/swap.conf.d/custom.conf.j2'
+    dest: '/etc/systemd/swap.conf.d/custom.conf'
     backup: no
     owner: root
     group: root
     mode: 0644
-  with_fileglob:
-    - ../templates/etc/systemd/swap.conf.d/*.conf.j2
   notify:
     - restart systemd-swap
