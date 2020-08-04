@@ -11,7 +11,7 @@ zswap_max_pool_percent={{ swap_systemd_zswap_max_pool_percent | d(25) }}
 ## Kernel >= 3.15
 zram_enabled={% if swap_systemd_zram_enabled | bool %}1{% else %}0{% endif %}
 
-zram_size={{ swap_systemd_zram_size | d('$(( ${RAM_SIZE} / 4 ))') }}
+zram_size={{ swap_systemd_zram_size | d('$(( RAM_SIZE / 4 ))') }}
 zram_count={{ swap_systemd_zram_count | d('${NCPU}') }}
 zram_streams={{ swap_systemd_zram_streams | d('${NCPU}') }}
 

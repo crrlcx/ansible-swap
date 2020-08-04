@@ -23,8 +23,8 @@ swap_file_size: '2G'
 swap_systemd_enabled: true
 swap_systemd_package:
   name: 'systemd-swap'
-  version: '4.0.2'
-  deb: 'systemd-swap_4.0.2_all.deb'
+  version: '4.4.0'
+  deb: 'systemd-swap_4.4.0_all.deb'
 
 # zSwap
 swap_systemd_zswap_enabled: false
@@ -35,7 +35,7 @@ swap_systemd_zram_enabled: false
 # swap_systemd_zram_size: "{{ (( ansible_memtotal_mb * 1024 * 1024 | filesizeformat | human_to_bytes ) / 2 ) | int | abs }}" # in bytes
 # swap_systemd_zram_count: "{{ ( ansible_processor_vcpus / 2 ) | int | abs }}"
 # swap_systemd_zram_streams: "{{ ansible_processor_vcpus }}"
-swap_systemd_zram_size: '$(( ${RAM_SIZE} / 2 ))'
+swap_systemd_zram_size: '$(( RAM_SIZE / 2 ))'
 swap_systemd_zram_count: '${NCPU}'
 swap_systemd_zram_streams: '${NCPU}'
 
