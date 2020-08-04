@@ -23,8 +23,8 @@ swap_file_size: '2G'
 swap_systemd_enabled: true
 swap_systemd_package:
   name: 'systemd-swap'
-  version: '4.4.0+b1'
-  deb: 'systemd-swap_4.4.0+b1_all.deb'
+  version: '4.0.2'
+  deb: 'systemd-swap_4.0.2_all.deb'
 
 swap_systemd_requirements:
   - python3-systemd
