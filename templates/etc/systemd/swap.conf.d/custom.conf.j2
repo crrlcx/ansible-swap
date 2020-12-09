@@ -21,7 +21,7 @@ swapfc_enabled={% if swap_systemd_swapfc_enabled | bool %}1{% else %}0{% endif %
 
 swapfc_force_use_loop={% if swap_systemd_swapfc_force_use_loop | bool %}1{% else %}0{% endif %}
 
-swapfc_frequency=1s
+swapfc_frequency=10
 swapfc_chunk_size={{ swap_systemd_swapfc_chunk_size | d('512M') }}
 swapfc_max_count={{ swap_systemd_swapfc_max_count | d(8) }}
 swapfc_free_swap_perc={{ swap_systemd_swapfc_free_swap_perc | d(15) }}
